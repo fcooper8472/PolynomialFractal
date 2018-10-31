@@ -1,16 +1,8 @@
-import numpy as np
 import itertools
 
+import numpy as np
+
 import matplotlib.pyplot as plt
-
-np.set_printoptions(precision=3)
-plt.rcParams['figure.figsize'] = (15, 15)
-
-max = 5
-num_bins = 1000
-bin_size = 6. / num_bins
-
-bins = np.zeros( (num_bins, num_bins) )
 
 
 def get_roots_fname(degree):
@@ -84,19 +76,17 @@ def bin_roots(_num_bins, _radius):
 
 if __name__ == '__main__':
 
-    max_deg = 18
+    max_deg = 24
     for deg in range(1, 1+max_deg):
         calculate_roots(deg)
 
-    bins = bin_roots(1000, 2.5)
+    bins = bin_roots(2800, 2.0)
 
-    threshold = np.percentile(bins[np.nonzero(bins)], 95)
+    threshold = np.percentile(bins[np.nonzero(bins)], 98)
     bins[bins > threshold] = threshold
 
-    # print(get_bins_fname(1000, 2.5, 18))
+    norm = plt.Normalize(0, threshold, clip=True)
+    cmap = plt.get_cmap('inferno')
+    image = cmap(norm(bins))
 
-    plt.imshow(bins, cmap='hot', interpolation='bicubic')
-    plt.show()
-    # plt.savefig("blah.png")
-
-    # print(bins)
+    plt.imsave('PolynomialFractal.png', image)

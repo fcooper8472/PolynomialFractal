@@ -2,6 +2,26 @@ import itertools
 import matplotlib.pyplot as plt
 import numpy as np
 
+######################
+# Parameterss to set #
+######################
+
+# Maximum polynomial degree. Don't set above 20 unless you're willing to wait!
+max_deg = 23
+
+# Number of bins which directly relates to the resolution of the output image.
+num_bins = 2800
+
+# The radius about 0 in the complex plane that is binned. Radius >= 2 will include all roots.
+radius = 2.
+
+# The percentile above which bin values are clipped, improving the dynamic range of the image.
+percentile = 98
+
+######################
+######################
+######################
+
 
 def get_roots_fname(_deg):
     return 'roots/degree_%s.npy' % str(_deg).zfill(2)
@@ -79,13 +99,12 @@ def bin_roots(_num_bins, _radius):
 
 if __name__ == '__main__':
 
-    max_deg = 23
     for deg in range(1, 1+max_deg):
         calculate_roots(deg)
 
-    bins = bin_roots(5600, 2.0)
+    bins = bin_roots(num_bins, radius)
 
-    threshold = np.percentile(bins[np.nonzero(bins)], 98)
+    threshold = np.percentile(bins[np.nonzero(bins)], percentile)
     bins[bins > threshold] = threshold
 
     norm = plt.Normalize(0, threshold, clip=True)

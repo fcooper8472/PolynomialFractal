@@ -1,5 +1,7 @@
 # PolynomialFractal
 
+![](images/logo.png)
+
 ## Background
 
 This repository contains a python script for visualising an interesting mathematical object.

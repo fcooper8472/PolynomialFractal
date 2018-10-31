@@ -83,7 +83,7 @@ if __name__ == '__main__':
     for deg in range(1, 1+max_deg):
         calculate_roots(deg)
 
-    bins = bin_roots(2800, 2.0)
+    bins = bin_roots(5600, 2.0)
 
     threshold = np.percentile(bins[np.nonzero(bins)], 98)
     bins[bins > threshold] = threshold

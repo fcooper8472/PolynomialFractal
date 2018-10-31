@@ -1,12 +1,10 @@
 import itertools
-
+import matplotlib.pyplot as plt
 import numpy as np
 
-import matplotlib.pyplot as plt
 
-
-def get_roots_fname(degree):
-    return 'roots/degree_%s.npy' % str(degree).zfill(2)
+def get_roots_fname(_deg):
+    return 'roots/degree_%s.npy' % str(_deg).zfill(2)
 
 
 def get_bins_fname(_num_bins, _radius, _max_degree):
@@ -18,7 +16,7 @@ def calculate_roots(_deg):
     # Try loading the roots from file.  If they don't exist, create them.
     try:
         np.load(get_roots_fname(_deg), allow_pickle=False)
-        print('Roots for degree %s already exist.' % str(_deg).rjust(2, ' '))
+        print('Roots for degree %s already exist.' % str(_deg).rjust(2, ' '), flush=True)
     except IOError:
         # There are deg+1 coefficients in a degree deg polynomial.
         # Each coefficient can be +-1 (except the first, or we will double-count)
@@ -32,7 +30,7 @@ def calculate_roots(_deg):
             all_roots[i] = np.roots([1.] + list(x))
 
         np.save(get_roots_fname(_deg), all_roots.flatten(), allow_pickle=False)
-        print('done.')
+        print('done.', flush=True)
 
 
 def bin_roots(_num_bins, _radius):
@@ -43,18 +41,16 @@ def bin_roots(_num_bins, _radius):
         try:
             np.load(get_roots_fname(_deg), allow_pickle=False)
             _deg += 1
-
         except IOError:
             break
-
     _max_deg = _deg - 1
 
+    # Try loading the pre-binned data from file.  If it doesn't exist, create it.
     try:
         _bins = np.load(get_bins_fname(_num_bins, _radius, _max_deg), allow_pickle=False)
-        print('Binning already complete for these parameters.')
+        print('Binning already complete for these parameters.', flush=True)
         return _bins
     except IOError:
-
         _bins = np.zeros((_num_bins, _num_bins), dtype=np.uint32)
         _bin_size = 2. * _radius / _num_bins
 
@@ -62,13 +58,20 @@ def bin_roots(_num_bins, _radius):
             print('Binning roots for degree %s... ' % str(_deg).rjust(2, ' '), end='', flush=True)
             roots_this_deg = np.load(get_roots_fname(_deg), allow_pickle=False)
 
+            # Find the correct bin
             imag_bins = np.floor((roots_this_deg.imag + _radius) / _bin_size).astype(np.uint16)
             real_bins = np.floor((roots_this_deg.real + _radius) / _bin_size).astype(np.uint16)
+
+            # Account for possible boundary issues if radius was picked too small
+            imag_bins[imag_bins > _num_bins - 1] = _num_bins - 1
+            real_bins[real_bins > _num_bins - 1] = _num_bins - 1
+            imag_bins[imag_bins < 0] = 0
+            real_bins[real_bins < 0] = 0
 
             for x in zip(imag_bins, real_bins):
                 _bins[x] += 1
 
-            print('done.')
+            print('done.', flush=True)
 
         np.save(get_bins_fname(_num_bins, _radius, _max_deg), _bins, allow_pickle=False)
         return _bins
@@ -76,7 +79,7 @@ def bin_roots(_num_bins, _radius):
 
 if __name__ == '__main__':
 
-    max_deg = 24
+    max_deg = 23
     for deg in range(1, 1+max_deg):
         calculate_roots(deg)
 
